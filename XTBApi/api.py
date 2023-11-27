@@ -526,9 +526,10 @@ class Client(BaseClient):
         conversion_mode_2 = {MODES.BUY.value: 'low', MODES.SELL.value: 'high'}
         price_2 = symbol_info[conversion_mode_2[mode.value]]
         factor_price_2 = 0.008
-        if mode == MODES.BUY or mode == MODES.BUY_LIMIT:
+        #if mode == MODES.BUY or mode == MODES.BUY_LIMIT:
+        if mode in (MODES.BUY,MODES.BUY_LIMIT):
             price_2 = round(price_2 * (1 - factor_price_2), 2)
-        elif mode == MODES.SELL or mode == MODES.SELL_LIMIT:
+        elif mode in(MODES.SELL,MODES.SELL_LIMIT):
             price_2 = round(price_2 * (1 + factor_price_2), 2)
 
         return price, price_2
