@@ -456,6 +456,11 @@ class Client(BaseClient):
             mode = mode.value
         self.LOGGER.debug(f"opening trade of {symbol} of Dolars:  with {mode_name}  Expiration: {datetime.fromtimestamp(expiration_stamp/1000) }")
         price = round(price * (1 + order_margin_per) , 2)
+        if dollars != 0:
+            round_value = 0
+            if len(str(int(price))) >= 4:
+                round_value = 2
+            volume = round((dollars / price) , round_value)
         lotStep = self.get_symbol(symbol)['lotStep']
         if lotStep == 0.01:
             volume = round(volume, 2)

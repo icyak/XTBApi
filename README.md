@@ -27,7 +27,7 @@ MODE      = 'demo'                # or use 'real' for real
 # FIRST INIT THE CLIENT
 client = Client()
 # THEN LOGIN
-client.login(USER_ID, PASSWORD, mode=MODE)
+client.login(USERID, PASSWORD, mode=MODE)
 # CHECK IF MARKET IS OPEN FOR EURUSD
 client.check_if_market_open([TICKER])
 # BUY ONE VOLUME (FOR EURUSD THAT CORRESPONDS TO 100000 units, for ETHEREUM it is 1)
@@ -56,7 +56,7 @@ def get_expiration_timeStamp(minutes): #specify timestamp for order
 
 Some example usage of client.open_trade with/without SL/TP and using volume/dollars
 ```python
-# Open trade with SL/TP with volume 1
+# Open trade with SL/TP with volume 1, TP 5%, SL 5%, expiration in 60 minutes
 client.open_trade('buy', 'ETHEREUM', volume=1, custom_Message="buy",tp_per = 0.05, sl_per= 0.05,expiration_stamp=get_expiration_timeStamp(60))
 # Open trade without SL/TP with volume 10
 client.open_trade('buy', 'VWCE.DE', volume=10, custom_Message="buy")
@@ -65,8 +65,7 @@ client.open_trade('buy', 'CARDANO', volume=1000, custom_Message="buy")
 # Open trade with 'volume=dollars/price' and you specify dollar size of trade, volume is rounded to accomotade 'lotStep' multiply
 client.open_trade('buy', 'CARDANO', dollars=1000, custom_Message="buy")
 #  Open trade without SL/TP, with 'volume=dollars/price' and you specify dollar size of trade, volume is rounded to accomotade 'lotStep' multiply
-client.open_trade('buy', 'VWCE.DE', dollars=1100, custom_Message="buy")
-
+client.open_trade('buy', 'VWCE.DE', dollars=1000, custom_Message="buy")
 ```
 
 # Api Reference
