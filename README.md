@@ -40,6 +40,8 @@ client.close_all_trades()
 client.logout()
 ```
 
+Some example usage of client.open_trade with/without SL/TP and using volume/dollars
+
 ```python
 # Open trade with SL/TP with volume 1
 client.open_trade('buy', 'ETHEREUM', volume=1, custom_Message="buy",tp_per = 0.05, sl_per= 0.05,expiration_stamp=get_expiration_timeStamp(60))
