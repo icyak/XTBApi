@@ -454,14 +454,8 @@ class Client(BaseClient):
         else:
             mode_name = mode.name
             mode = mode.value
-
         self.LOGGER.debug(f"opening trade of {symbol} of Dolars:  with {mode_name}  Expiration: {datetime.fromtimestamp(expiration_stamp/1000) }")
         price = round(price * (1 + order_margin_per) , 2)
-
-
-
-
-
         if dollars != 0:
             round_value = 0
             if len(str(int(price))) >= 4:
@@ -501,9 +495,8 @@ class Client(BaseClient):
         if status_messg == 'SL/TP order not supported' or status_messg == 'Short selling not available':
             self.LOGGER.debug('FAIL. opening trade of '+symbol+' Message: '+status_messg+' Stock: '+ symbol + " ")
             return response
-        if status_messg == 'Invalid nominal': #if you want to trade something that needs multiple of 10, this will retry trade with rounded volume e.g. from 2632 -> 2630, this is also creating failed transacation in order history due to "invalid nominal" error
-            self.LOGGER.debug('FAIL. opening trade of '+symbol+' Message: '+status_messg+' Stock: '+ symbol + " rounding to multiple of specific 'lotStep' and trying again")
-
+        if status_messg == 'Invalid nominal': #if you want to trade something that needs multiple different than 0.01, 0.1, 1.0 or 10.0
+            self.LOGGER.debug('FAIL. opening trade of '+symbol+' Message: '+status_messg+' Stock: '+ symbol + " ")
             response = self.trade_transaction(symbol, mode, trans_type=0, volume=volume, price=price,customComment=custom_Message, expiration=expiration_stamp)
             status, status_messg = self.manage_response(expiration_stamp, response)
         if status != 3:

@@ -19,14 +19,19 @@ pip install .
 Then you can use XTBApi like this simple tutorial.
 ```python
 from XTBApi.api import Client
+USERID    = 1234567890            # ID from XTB webapp (top right corner, check if you are on real or demo)
+PASSWORD  = 'random_pass_here'    # XTB password
+TICKER    = 'ETHEREUM'            # ticker for trade
+MODE      = 'demo'                # or use 'real' for real
+
 # FIRST INIT THE CLIENT
 client = Client()
 # THEN LOGIN
-client.login("{user_id}", "{password}", mode={demo,real})
+client.login(USER_ID, PASSWORD, mode=MODE)
 # CHECK IF MARKET IS OPEN FOR EURUSD
-client.check_if_market_open([EURUSD])
+client.check_if_market_open([TICKER])
 # BUY ONE VOLUME (FOR EURUSD THAT CORRESPONDS TO 100000 units)
-client.open_trade('buy', EURUSD, 1)
+client.open_trade('buy', TICKER, 1)
 # SEE IF ACTUAL GAIN IS ABOVE 100 THEN CLOSE THE TRADE
 trades = client.update_trades() # GET CURRENT TRADES
 trade_ids = [trade_id for trade_id in trades.keys()]
