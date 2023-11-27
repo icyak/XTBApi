@@ -458,6 +458,10 @@ class Client(BaseClient):
         self.LOGGER.debug(f"opening trade of {symbol} of Dolars:  with {mode_name}  Expiration: {datetime.fromtimestamp(expiration_stamp/1000) }")
         price = round(price * (1 + order_margin_per) , 2)
 
+
+
+
+
         if dollars != 0:
             round_value = 0
             if len(str(int(price))) >= 4:
@@ -466,6 +470,17 @@ class Client(BaseClient):
             if 1 > volume and ".US" in symbol:
                 self.LOGGER.warning(f"Volume cannot be less than 1 in Stocks ,symbol:  {symbol} ")
                 volume = 1
+        lotStep = self.get_symbol(symbol)['lotStep']
+        if lotStep == 0.01:
+            volume = round(volume, 2)
+        elif lotStep == 0.1:
+            volume = round(volume, 1)
+        elif lotStep == 1.0:
+            volume = round(volume, 0)
+        elif lotStep == 10.0:
+            volume = round(volume, -1)
+        elif lotStep == 100.0:
+            volume = round(volume, -2)
         sl, tp = self.get_tp_sl(mode, price, sl_per, tp_per)
         if tp_per == 0 and sl_per == 0:
             response = self.trade_transaction(symbol, mode, trans_type = 0,volume = volume, price=price, customComment=custom_Message, expiration = expiration_stamp) #open trade without SL/TP
@@ -487,8 +502,8 @@ class Client(BaseClient):
             self.LOGGER.debug('FAIL. opening trade of '+symbol+' Message: '+status_messg+' Stock: '+ symbol + " ")
             return response
         if status_messg == 'Invalid nominal': #if you want to trade something that needs multiple of 10, this will retry trade with rounded volume e.g. from 2632 -> 2630, this is also creating failed transacation in order history due to "invalid nominal" error
-            self.LOGGER.debug('FAIL. opening trade of '+symbol+' Message: '+status_messg+' Stock: '+ symbol + " rounding to multiple of 10 and trying again")
-            volume = round(volume, -1)
+            self.LOGGER.debug('FAIL. opening trade of '+symbol+' Message: '+status_messg+' Stock: '+ symbol + " rounding to multiple of specific 'lotStep' and trying again")
+
             response = self.trade_transaction(symbol, mode, trans_type=0, volume=volume, price=price,customComment=custom_Message, expiration=expiration_stamp)
             status, status_messg = self.manage_response(expiration_stamp, response)
         if status != 3:

@@ -40,8 +40,16 @@ client.close_all_trades()
 client.logout()
 ```
 
-Some example usage of client.open_trade with/without SL/TP and using volume/dollars
+To use get_expirationtimeStamp(minutes to expire)
+```python
+import datetime
+def get_expiration_timeStamp(minutes): #specify timestamp for order
+    expitarion_timestamp = datetime.datetime.now().replace(microsecond=0) + datetime.timedelta(minutes=minutes)
+    expitarion_timestamp = int(datetime.datetime.timestamp(expitarion_timestamp)) * 1000
+    return expitarion_timestamp
+```
 
+Some example usage of client.open_trade with/without SL/TP and using volume/dollars
 ```python
 # Open trade with SL/TP with volume 1
 client.open_trade('buy', 'ETHEREUM', volume=1, custom_Message="buy",tp_per = 0.05, sl_per= 0.05,expiration_stamp=get_expiration_timeStamp(60))
@@ -49,16 +57,12 @@ client.open_trade('buy', 'ETHEREUM', volume=1, custom_Message="buy",tp_per = 0.0
 client.open_trade('buy', 'VWCE.DE', volume=10, custom_Message="buy")
 # Open trade without SL/TP with volume 1000
 client.open_trade('buy', 'CARDANO', volume=1000, custom_Message="buy")
-# Open trade with volume=dollars/price, if volume need to be multiple of 10, it creates failed order and then tries it again with volume rounded to multiple of 10
+# Open trade with 'volume=dollars/price' and you specify dollar size of trade, volume is rounded to accomotade 'lotStep' multiply
 client.open_trade('buy', 'CARDANO', dollars=1000, custom_Message="buy")
+#  Open trade without SL/TP, with 'volume=dollars/price' and you specify dollar size of trade, volume is rounded to accomotade 'lotStep' multiply
+client.open_trade('buy', 'VWCE.DE', dollars=1100, custom_Message="buy")
 
 ```
 
-
-
-
-
 # Api Reference
-REQUIRED - **SOON**
-
-_Documentation still in progess_
+http://developers.xstore.pro/documentation/#introduction
