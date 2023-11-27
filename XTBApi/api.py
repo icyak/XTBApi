@@ -19,7 +19,7 @@ from websocket._exceptions import WebSocketConnectionClosedException
 
 from XTBApi.exceptions import *
 
-LOGGER = logging.getLogger() #logging.getLogger('XTBApi.api')
+LOGGER = logging.getLogger()
 LOGIN_TIMEOUT = 120
 MAX_TIME_INTERVAL = 0.200
 
@@ -479,6 +479,7 @@ class Client(BaseClient):
             status, status_messg = self.manage_response(expiration_stamp, response)
             price = price_2
         if status_messg == 'Invalid s/l or t/p price':
+            sl, tp = self.get_tp_sl(mode, price, sl_per+ 0.012, tp_per+ 0.012)
             self.LOGGER.debug('FAIL. opening trade of '+symbol+' Message: '+status_messg+' Stock: '+ symbol + " ")
             response = self.trade_transaction(symbol, mode, trans_type=0, volume=volume, price=price,customComment=custom_Message, expiration=expiration_stamp)
             status, status_messg = self.manage_response(expiration_stamp, response)
