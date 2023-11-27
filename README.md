@@ -30,7 +30,7 @@ client = Client()
 client.login(USER_ID, PASSWORD, mode=MODE)
 # CHECK IF MARKET IS OPEN FOR EURUSD
 client.check_if_market_open([TICKER])
-# BUY ONE VOLUME (FOR EURUSD THAT CORRESPONDS TO 100000 units)
+# BUY ONE VOLUME (FOR EURUSD THAT CORRESPONDS TO 100000 units, for ETHEREUM it is 1)
 client.open_trade('buy', TICKER, 1)
 # SEE IF ACTUAL GAIN IS ABOVE 100 THEN CLOSE THE TRADE
 trades = client.update_trades() # GET CURRENT TRADES
