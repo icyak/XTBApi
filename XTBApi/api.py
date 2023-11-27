@@ -19,7 +19,7 @@ from websocket._exceptions import WebSocketConnectionClosedException
 
 from XTBApi.exceptions import *
 
-LOGGER = logging.getLogger() #logging.getLogger('XTBApi.api')
+LOGGER = logging.getLogger()
 LOGIN_TIMEOUT = 120
 MAX_TIME_INTERVAL = 0.200
 
@@ -284,7 +284,6 @@ class BaseClient(object):
 
     def get_trading_hours(self, trade_position_list):
         """getTradingHours command"""
-        # EDITED IN ALPHA2
         data = _get_data("getTradingHours", symbols=trade_position_list)
         self.LOGGER.info(f"CMD: get trading hours of len "
                          f"{len(trade_position_list)}...")
@@ -438,8 +437,9 @@ class Client(BaseClient):
         self.LOGGER.info(f"got trade profit of {profit}")
         return profit
 
-    def open_trade(self, mode, symbol, dolars =0, custom_Messege ="", tp_per = 0.05, sl_per= 0.05, order_margin_per = 0, expiration_stamp = 0):
+    def open_trade(self, mode, symbol, volume =0, dollars=0, custom_Message ="", tp_per = 0.00, sl_per= 0.00,order_margin_per = 0, expiration_stamp = 0, *args, **kwargs):
         """open trade transaction"""
+        self.LOGGER.debug(f"dollars={dollars}")
         if mode in [MODES.BUY.value, MODES.SELL.value]:
             mode = [x for x in MODES if x.value == mode][0]
         elif mode in ['buy', 'sell']:
@@ -447,9 +447,7 @@ class Client(BaseClient):
             mode = modes[mode]
         else:
             raise ValueError("mode can be buy or sell")
-
         price, price_2 = self.get_prices_operate(mode, symbol)
-
         if order_margin_per != 0:
             # https://www.xtb.com/int/education/xstation-5-pending-orders
             mode, mode_name = self.change_to_order_type_mode(mode.name)
@@ -457,47 +455,47 @@ class Client(BaseClient):
             mode_name = mode.name
             mode = mode.value
 
-        self.LOGGER.debug(f"opening trade of {symbol} of Dolars: {dolars} with {mode_name}  Expiration: {datetime.fromtimestamp(expiration_stamp/1000) }")
-        price = round(price * (1 + order_margin_per) , 2) #No mas de 3 decimales
+        self.LOGGER.debug(f"opening trade of {symbol} of Dolars:  with {mode_name}  Expiration: {datetime.fromtimestamp(expiration_stamp/1000) }")
+        price = round(price * (1 + order_margin_per) , 2)
 
-        if dolars != 0:
+        if dollars != 0:
             round_value = 0
-            if len(str(int(price))) >= 4:#para valores muy grandes como el bitcoin
+            if len(str(int(price))) >= 4:
                 round_value = 2
-            volumen = round((dolars / price) , round_value)
-            if 1 > volumen and ".US" in symbol:
+            volume = round((dollars / price) , round_value)
+            if 1 > volume and ".US" in symbol:
                 self.LOGGER.warning(f"Volume cannot be less than 1 in Stocks ,symbol:  {symbol} ")
-                volumen = 1
-
-        if dolars <= 0:
-            raise ValueError(f"The value in dollars is lower than expected :{dolars}")
+                volume = 1
         sl, tp = self.get_tp_sl(mode, price, sl_per, tp_per)
-
-        # trans_type = TRANS_TYPES.PENDING.value
-
-        response = self.trade_transaction(symbol, mode, trans_type = 0,volume = volumen, price=price,
-                                          customComment=custom_Messege,tp=tp, sl=sl, expiration = expiration_stamp  )
-        # response = self.trade_transaction(symbol, MODES.SELL_LIMIT.value, 0, volume=volumen_with_dolars, price=price,customComment=custom_Messege, tp=tp, sl=sl)
-        status, status_messg = self.manage_response(expiration_stamp, response)
+        if tp_per == 0 and sl_per == 0:
+            response = self.trade_transaction(symbol, mode, trans_type = 0,volume = volume, price=price, customComment=custom_Message, expiration = expiration_stamp) #open trade without SL/TP
+            status, status_messg = self.manage_response(expiration_stamp, response)
+        else:
+            response = self.trade_transaction(symbol, mode, trans_type = 0,volume = volume, price=price, customComment=custom_Message, tp=tp, sl=sl,expiration = expiration_stamp) #open trade with SL/TP
+            status, status_messg = self.manage_response(expiration_stamp, response)
         if status_messg == 'Invalid prices(limit)':
-            response = self.trade_transaction(symbol, mode, trans_type=0, volume=volumen, price=price_2,customComment=custom_Messege, tp=tp, sl=sl, expiration=expiration_stamp)
+            self.LOGGER.debug('FAIL. opening trade of '+symbol+' Message: '+status_messg+' Stock: '+ symbol + " ")
+            response = self.trade_transaction(symbol, mode, trans_type=0, volume=volume, price=price_2,customComment=custom_Message, expiration=expiration_stamp)
             status, status_messg = self.manage_response(expiration_stamp, response)
             price = price_2
         if status_messg == 'Invalid s/l or t/p price':
             sl, tp = self.get_tp_sl(mode, price, sl_per+ 0.012, tp_per+ 0.012)
-            response = self.trade_transaction(symbol, mode, trans_type=0, volume=volumen, price=price,customComment=custom_Messege, tp=tp, sl=sl, expiration=expiration_stamp)
+            self.LOGGER.debug('FAIL. opening trade of '+symbol+' Message: '+status_messg+' Stock: '+ symbol + " ")
+            response = self.trade_transaction(symbol, mode, trans_type=0, volume=volume, price=price,customComment=custom_Message, expiration=expiration_stamp)
             status, status_messg = self.manage_response(expiration_stamp, response)
         if status_messg == 'SL/TP order not supported' or status_messg == 'Short selling not available':
-            print('FAIL. opening trade of '+symbol+' Message: '+status_messg+' Stock: '+ symbol + " ")
+            self.LOGGER.debug('FAIL. opening trade of '+symbol+' Message: '+status_messg+' Stock: '+ symbol + " ")
             return response
-
-
-        #'Instrument is quoted in close only mode' FAIL 100%      'Instrument is quoted in close only mode'
+        if status_messg == 'Invalid nominal': #if you want to trade something that needs multiple of 10, this will retry trade with rounded volume e.g. from 2632 -> 2630, this is also creating failed transacation in order history due to "invalid nominal" error
+            self.LOGGER.debug('FAIL. opening trade of '+symbol+' Message: '+status_messg+' Stock: '+ symbol + " rounding to multiple of 10 and trying again")
+            volume = round(volume, -1)
+            response = self.trade_transaction(symbol, mode, trans_type=0, volume=volume, price=price,customComment=custom_Message, expiration=expiration_stamp)
+            status, status_messg = self.manage_response(expiration_stamp, response)
         if status != 3:
-            self.LOGGER.debug(f"FAIL. opening trade of {symbol} Message: {status_messg} of Dolars: {dolars} with {mode_name} Expiration: {datetime.fromtimestamp(expiration_stamp / 1000)}")
-            raise TransactionRejected(status + " Message : "+ status_messg + ' Stock '+symbol+ " Volumne: "+str(volumen))
+            self.LOGGER.debug(f"FAIL. opening trade of {symbol} Message: {status_messg} of Dolars:  with {mode_name} Expiration: {datetime.fromtimestamp(expiration_stamp / 1000)}")
+            raise TransactionRejected(status + " Message : "+ status_messg + ' Stock '+symbol+ " Volumne: "+str(volume))
         else:
-            self.LOGGER.debug(f"Successfully. opening trade of {symbol} of Dolars: {dolars} with {mode_name} Expiration: {datetime.fromtimestamp(expiration_stamp/1000)}")
+            self.LOGGER.debug(f"Successfully. opening trade of {symbol} of Dolars:  with {mode_name} Expiration: {datetime.fromtimestamp(expiration_stamp/1000)}")
         return response
 
     def get_tp_sl(self, mode, price, sl_per, tp_per):
