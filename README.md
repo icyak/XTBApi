@@ -1,11 +1,7 @@
 # XTBApi
-
-> Api for XTB trading platform.
-
 A python based API for XTB trading using _websocket_client_.
 
 # Installing / Getting started
-
 To install the API, just clone the repository.
 
 ```bash
@@ -16,7 +12,7 @@ python3 -m venv env
 pip install .
 ```
 
-Then you can use XTBApi like this simple tutorial.
+# Simple tutorial
 ```python
 from XTBApi.api import Client
 USERID    = 1234567890            # ID from XTB webapp (top right corner, check if you are on real or demo)
@@ -44,7 +40,7 @@ client.close_all_trades()
 # THEN LOGOUT
 client.logout()
 ```
-
+# Usage of get_expirationtimeStamp
 To use get_expirationtimeStamp(minutes to expire)
 ```python
 import datetime
@@ -54,6 +50,7 @@ def get_expiration_timeStamp(minutes): #specify timestamp for order
     return expitarion_timestamp
 ```
 
+# Examples of opening trades
 Some example usage of client.open_trade with/without SL/TP and using volume/dollars
 ```python
 # Open trade with SL/TP with volume 1, TP 5%, SL 5%, expiration in 60 minutes
