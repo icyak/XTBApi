@@ -284,7 +284,6 @@ class BaseClient(object):
 
     def get_trading_hours(self, trade_position_list):
         """getTradingHours command"""
-        # EDITED IN ALPHA2
         data = _get_data("getTradingHours", symbols=trade_position_list)
         self.LOGGER.info(f"CMD: get trading hours of len "
                          f"{len(trade_position_list)}...")
