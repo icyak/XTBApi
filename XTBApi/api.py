@@ -431,7 +431,7 @@ class Client(BaseClient):
         return profit
 
     def open_trade(self, mode, symbol, volume =0, dollars=0, custom_message ="", 
-                   tp_per = 0.00, sl_per= 0.00,order_margin_per = 0, expiration_stamp = 0):
+                   tp_per = 0.00, sl_per= 0.00, type_of_instrument ="", order_margin_per = 0, expiration_stamp = 0):
         """open trade transaction"""
         self.logger.debug("dollars = %s", dollars)
         if mode in [MODES.BUY.value, MODES.SELL.value]:
@@ -441,6 +441,10 @@ class Client(BaseClient):
             mode = modes[mode]
         else:
             raise ValueError("mode can be buy or sell")
+        if type_of_instrument == "stc":
+            symbol = symbol + "_9"
+        elif type_of_instrument == "cfd":
+            symbol = symbol + "_4"
         price, price_2 = self.get_prices_operate(mode, symbol)
         if order_margin_per != 0:
             # https://www.xtb.com/int/education/xstation-5-pending-orders

@@ -54,15 +54,19 @@ def get_expiration_timeStamp(minutes): #specify timestamp for order
 Some example usage of client.open_trade with/without SL/TP and using volume/dollars
 ```python
 # Open trade with SL/TP with volume 1, TP 5%, SL 5%, expiration in 60 minutes
-client.open_trade('buy', 'ETHEREUM', volume=1, custom_Message="buy",tp_per = 0.05, sl_per= 0.05,expiration_stamp=get_expiration_timeStamp(60))
+client.open_trade('buy', 'ETHEREUM', volume=1, custom_message="buy",tp_per = 0.05, sl_per= 0.05,expiration_stamp=get_expiration_timeStamp(60))
 # Open trade without SL/TP with volume 10
-client.open_trade('buy', 'VWCE.DE', volume=10, custom_Message="buy")
+client.open_trade('buy', 'VWCE.DE', volume=10, custom_message="buy")
 # Open trade without SL/TP with volume 1000
-client.open_trade('buy', 'CARDANO', volume=1000, custom_Message="buy")
+client.open_trade('buy', 'CARDANO', volume=1000, custom_message="buy")
 # Open trade with 'volume=dollars/price' and you specify dollar size of trade, volume is rounded to accomotade 'lotStep' multiply
-client.open_trade('buy', 'CARDANO', dollars=1000, custom_Message="buy")
-#  Open trade without SL/TP, with 'volume=dollars/price' and you specify dollar size of trade, volume is rounded to accomotade 'lotStep' multiply
-client.open_trade('buy', 'VWCE.DE', dollars=1000, custom_Message="buy")
+client.open_trade('buy', 'CARDANO', dollars=1000, custom_message="buy")
+# Open trade without SL/TP, with 'volume=dollars/price' and you specify dollar size of trade, volume is rounded to accomotade 'lotStep' multiply
+client.open_trade('buy', 'VWCE.DE', dollars=1000, custom_message="buy")
+# Open trade with SL/TP, with volume 10 on instrument O.US CFD - internal XTB ticker is O.US_4
+client.open_trade('buy', 'O.US', type_of_instrument='cfd', volume=10, custom_message="buy",tp_per = 0.05, sl_per= 0.05)
+# Open trade without SL/TP, with volume 10 on instrument O.US - internal XTB ticker is O.US_9
+client.open_trade('buy', 'O.US', type_of_instrument='stc',volume=10, custom_message="buy")
 ```
 
 # Api Reference
