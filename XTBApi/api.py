@@ -526,10 +526,10 @@ class Client(BaseClient):
 
     def get_tp_sl(self, mode, price, sl_per, tp_per):
         self: self@Client
-        if mode == MODES.BUY.value or mode == MODES.BUY_LIMIT.value:
+        if mode in (MODES.BUY.value, MODES.BUY_LIMIT.value):
             tp = round(price * (1 + tp_per), 2)
             sl = round(price * (1 - sl_per), 2)
-        elif mode == MODES.SELL.value or mode == MODES.SELL_LIMIT.value:
+        elif mode in (MODES.SELL.value, MODES.SELL_LIMIT.value):
             sl = round(price * (1 + sl_per), 2)
             tp = round(price * (1 - tp_per), 2)
         return sl, tp
