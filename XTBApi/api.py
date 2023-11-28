@@ -183,7 +183,7 @@ class BaseClient(object):
             "symbol": symbol
         }
         data = _get_data("getChartLastRequest", info=args)
-        self.logger.info("CMD: get chart last request for %s of period %s from %s ...", 
+        self.logger.info("CMD: get chart last request for %s of period %s from %s ...",
                          symbol, period, start)
         return self._send_command_with_check(data)
 
@@ -199,7 +199,7 @@ class BaseClient(object):
             "ticks": ticks
         }
         data = _get_data("getChartRangeRequest", info=args)
-        self.logger.info("CMD: get chart range request for %s of %s from %s to %s with ticks of %s", 
+        self.logger.info("CMD: get chart range request for %s of %s from %s to %s with ticks of %s",
                          symbol, period, start, end, ticks)
         return self._send_command_with_check(data)
 
@@ -233,7 +233,7 @@ class BaseClient(object):
         data = _get_data("getProfitCalculation", closePrice=cl_price,
                          cmd=mode, openPrice=op_price, symbol=symbol,
                          volume=volume)
-        self.logger.info("CMD: get profit calculation for %s of %i from %f to %f in mode  %s...", 
+        self.logger.info("CMD: get profit calculation for %s of %i from %f to %f in mode  %s...",
                          symbol, volume, op_price, cl_price, mode)
         return self._send_command_with_check(data)
 
@@ -253,7 +253,7 @@ class BaseClient(object):
         """getTickPrices command"""
         data = _get_data("getTickPrices", level=level, symbols=symbols,
                          timestamp=start)
-        self.logger.info("CMD: get tick prices of %s from %s with level %s...", 
+        self.logger.info("CMD: get tick prices of %s from %s with level %s...",
                          symbols, start, level )
         return self._send_command_with_check(data)
 
@@ -325,7 +325,7 @@ class BaseClient(object):
         name_of_mode = [x.name for x in MODES if x.value == mode][0]
         name_of_type = [x.name for x in TRANS_TYPES if x.value ==
                         trans_type][0]
-        self.logger.info("CMD: trade transaction of %s of mode %s with type %s of %i", 
+        self.logger.info("CMD: trade transaction of %s of mode %s with type %s of %i",
                          symbol, name_of_mode, name_of_type, volume)
         return self._send_command_with_check(data)
 
@@ -430,7 +430,7 @@ class Client(BaseClient):
         self.logger.info("got trade profit of %s", profit)
         return profit
 
-    def open_trade(self, mode, symbol, volume =0, dollars=0, custom_message ="", 
+    def open_trade(self, mode, symbol, volume =0, dollars=0, custom_message ="",
                    tp_per = 0.00, sl_per= 0.00, type_of_instrument ="", order_margin_per = 0, expiration_stamp = 0):
         """open trade transaction"""
         self.logger.debug("dollars = %s", dollars)
@@ -452,7 +452,7 @@ class Client(BaseClient):
         else:
             mode_name = mode.name
             mode = mode.value
-        self.logger.debug("opening trade of %s of Dollars: %i with %s Expiration: %s", 
+        self.logger.debug("opening trade of %s of Dollars: %i with %s Expiration: %s",
                           symbol, dollars, mode_name, datetime.fromtimestamp(expiration_stamp/1000))
         price = round(price * (1 + order_margin_per) , 2)
         if dollars != 0:
@@ -473,23 +473,23 @@ class Client(BaseClient):
             volume = round(volume, -2)
         sl, tp = self.get_tp_sl(mode, price, sl_per, tp_per)
         if tp_per == 0 and sl_per == 0:
-            response = self.trade_transaction(symbol, mode, trans_type = 0,volume = volume, 
+            response = self.trade_transaction(symbol, mode, trans_type = 0,volume = volume,
                                               price=price, customComment=custom_message, expiration = expiration_stamp) #open trade without SL/TP
             status, status_messg = self.manage_response(expiration_stamp, response)
         else:
-            response = self.trade_transaction(symbol, mode, trans_type = 0,volume = volume, 
+            response = self.trade_transaction(symbol, mode, trans_type = 0,volume = volume,
                                               price=price, customComment=custom_message, tp=tp, sl=sl,expiration = expiration_stamp) #open trade with SL/TP
             status, status_messg = self.manage_response(expiration_stamp, response)
         if status_messg == 'Invalid prices(limit)':
             self.logger.debug("FAIL. opening trade of %s Message: %s Stock: %s", symbol, status_messg, symbol)
-            response = self.trade_transaction(symbol, mode, trans_type=0, volume=volume, 
+            response = self.trade_transaction(symbol, mode, trans_type=0, volume=volume,
                                               price=price_2,customComment=custom_message, expiration=expiration_stamp)
             status, status_messg = self.manage_response(expiration_stamp, response)
             price = price_2
         if status_messg == 'Invalid s/l or t/p price':
             sl, tp = self.get_tp_sl(mode, price, sl_per+ 0.012, tp_per+ 0.012)
             self.logger.debug("FAIL. opening trade of %s Message: %s Stock: %s", symbol, status_messg, symbol)
-            response = self.trade_transaction(symbol, mode, trans_type=0, volume=volume, 
+            response = self.trade_transaction(symbol, mode, trans_type=0, volume=volume,
                                               price=price,customComment=custom_message, expiration=expiration_stamp)
             status, status_messg = self.manage_response(expiration_stamp, response)
         if status_messg == 'SL/TP order not supported' or status_messg == 'Short selling not available':
@@ -497,12 +497,12 @@ class Client(BaseClient):
             return response
         if status_messg == 'Invalid nominal': #if you want to trade something that needs multiple different than 0.01, 0.1, 1.0 or 10.0
             self.logger.debug("FAIL. opening trade of %s Message: %s Stock: %s", symbol, status_messg, symbol)
-            response = self.trade_transaction(symbol, mode, trans_type=0, volume=volume, 
+            response = self.trade_transaction(symbol, mode, trans_type=0, volume=volume,
                                               price=price,customComment=custom_message, expiration=expiration_stamp)
             status, status_messg = self.manage_response(expiration_stamp, response)
         if status_messg == 'Market closed':
             self.logger.debug("FAIL. opening trade of %s Message: %s Stock: %s", symbol, status_messg, symbol)
-            response = self.trade_transaction(symbol, mode, trans_type=0, volume=volume, 
+            response = self.trade_transaction(symbol, mode, trans_type=0, volume=volume,
                                               price=price,customComment=custom_message, expiration=expiration_stamp)
             status, status_messg = self.manage_response(expiration_stamp, response)
         if status != 3:
@@ -542,7 +542,7 @@ class Client(BaseClient):
         status_rep = self.trade_transaction_status(response['order'])
         status = status_rep['requestStatus']
         status_messg = status_rep['message']
-        self.logger.debug("open_trade completed with status of %s Message: %s Expiration: %s", 
+        self.logger.debug("open_trade completed with status of %s Message: %s Expiration: %s",
                           status, status_messg, datetime.fromtimestamp(expiration_stamp/1000))
         return status, status_messg
 
